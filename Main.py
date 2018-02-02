@@ -1,8 +1,23 @@
 import peewee
 from peewee import *
 import sys
+from email import _name
+import __main__
+from symbol import except_clause
 
 db = peewee.SqliteDatabase('internet_banking.db')
+
+def initDB():
+    db.connect()
+    try:
+        db.create_tables([User, Funds])
+    except OperationalError:
+        # if tables already existed
+        print "Exception during tables creation"
+        pass
+
+def deinitDB():
+    db.close()
 
 #Creating the models for the project
 class BaseModel(Model):
@@ -14,18 +29,16 @@ class User(BaseModel):
     dob = CharField()
     gender = CharField()
     address = CharField()    
-    
+
 class Funds(BaseModel):
     user = ForeignKeyField(User, backref='funds')
     amount = DoubleField()
-
 
 def create_user():
     name = raw_input("Please enter your name:")
     date_of_birth = raw_input("Please enter your date of birth:")
     gender = raw_input("Please enter your gender:")
     address = raw_input("Please enter your address:")
-    
 
 def balance_check():
     print "Checking Balance"
@@ -36,12 +49,9 @@ def withdrawal():
 def deposit():
     print "Depositing amount"
 
-
 def existing_user():
     existing_user_message()
-    
-    
-    
+
 def existing_user_message():
     print """
         Thanks for your confirmation. Please choose from the following options:
@@ -80,5 +90,6 @@ elif user_choice == 'b':
     existing_user()
 else:
     print "Invalid Choice. Please try again later. Good Bye."
-    
-    
+
+if __name__ == '__main__':
+    initDB()
